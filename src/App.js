@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 
-import {Route, Switch} from 'react-router-dom'
+import {Route} from 'react-router-dom'
 import Home from './container/Home/Home';
 import Main from './container/Main/Main';
 
