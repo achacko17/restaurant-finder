@@ -4,6 +4,7 @@ import './App.css';
 import {Route} from 'react-router-dom'
 import Home from './container/Home/Home';
 import Main from './container/Main/Main';
+import NavBar from './components/Navbar/NavBar';
 
 
 // if only one page just do
@@ -16,6 +17,7 @@ import Main from './container/Main/Main';
 function App() {
   return(
     <div className="App">
+          <Route path="/" component={NavBar}/>
           <Route exact path ="/" component={Home}/>
           <Route exact path="/main" component={Main}/>
        

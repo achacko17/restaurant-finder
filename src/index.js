@@ -3,6 +3,9 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+import {createStore} from 'redux'
+import reducer from './store/reducers/reducers'
+import {Provider} from 'react-redux'
 
 //use for routing
 import {BrowserRouter} from 'react-router-dom';
@@ -11,15 +14,16 @@ import HttpsRedirect from 'react-https-redirect';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+const store = createStore(reducer)
 
 const app = (
-    <HttpsRedirect>
-   
-            <BrowserRouter>
-                <App/>
-            </BrowserRouter>
-   
-    </HttpsRedirect>
+    <Provider store = {store}>
+        <HttpsRedirect>
+                <BrowserRouter>
+                    <App/>
+                </BrowserRouter>
+        </HttpsRedirect>
+    </Provider>
 )
 
 ReactDOM.render(app, document.getElementById('root'));

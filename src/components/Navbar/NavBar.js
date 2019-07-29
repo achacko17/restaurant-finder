@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import {connect} from 'react-redux'
 import './NavBar.css'
 
 import {
@@ -30,12 +31,12 @@ class navbar extends Component{
         })
     }
 
-    render() {
+    render() {        
+        const nav =  <NavbarBrand href="/">Welcome{this.props.location.pathname !=="/" ? ', ' + this.props.fullName : null}</NavbarBrand>
         return(
-            
             <div>
             <Navbar id="navColor" color="light" light expand="md">
-                <NavbarBrand href="/">Restaurant Picker</NavbarBrand>
+                {nav}
                 <NavbarToggler onClick={this.toggle} />
                 <Collapse isOpen={this.state.isOpen} navbar>
                 <Nav className="ml-auto" navbar>
@@ -69,4 +70,13 @@ class navbar extends Component{
         );
     };
 }
-export default navbar;
+
+
+
+const mapStateToProps = state => {
+    return {
+        fullName: state.fullName
+    }
+};
+
+export default connect (mapStateToProps)(navbar);

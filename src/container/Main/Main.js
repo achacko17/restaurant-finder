@@ -8,6 +8,7 @@ import NavBar from '../../components/Navbar/NavBar'
 // import Card from '../../components/Card/Card'
 import './Main.css'
 import axios from 'axios'
+import {connect} from 'react-redux'
  
 class Main extends Component{
 
@@ -17,7 +18,9 @@ class Main extends Component{
         isLoading: true
     }
 
-    handleChange = (event)  => {
+     _isMounted = false;
+
+    searchCategories = (event)  => {
         console.log(this.state.data)
     //   this.setState({text: event.target.value})
     //   console.log(this.state.text)
@@ -31,19 +34,35 @@ class Main extends Component{
       this.setState({result:newResult})
     }
 
+    handleChange = (event)  => {
+        this.setState({location: event.target.value, textInput: true})
+      }
+
     componentDidMount(){
+        this._isMounted = true;
         let config = {
             headers: {"user-key": "0bebf79759ac7e47316ab07b4578eb33"} 
         }
         axios.get( 'https://developers.zomato.com/api/v2.1/categories', config, {} )
             .then( response => {
-                this.setState({ data: response.data.categories, result: response.data.categories, isLoading: false})
-                console.log(response.data)
+                if(this._isMounted){
+                    this.setState({ data: response.data.categories, result: response.data.categories, isLoading: false})
+                    console.log(response.data)
+                }
+                
             } )
             .catch(error => {
                 console.log(error);
             });
+
+        if(this.props.fullName===""){
+            this.props.history.push("/")
+        }
     }
+
+    componentWillUnmount() {
+        this._isMounted = false;
+      }
 
     renderCategoriesonCard(){
         return this.state.result.map(category => {
@@ -58,6 +77,54 @@ class Main extends Component{
         })
     }
 
+    callAxios = () => {
+        let config = {}
+        if(this.state.currentLoc){
+            config = {
+                        headers: {"user-key": "0bebf79759ac7e47316ab07b4578eb33"},
+                        params: {lat: this.state.latitude, lon: this.state.longitude}
+                    }
+        }
+        else if(this.state.textInput){
+            config = {
+                headers: {"user-key": "0bebf79759ac7e47316ab07b4578eb33"},
+                params: { query: this.state.location}
+            }
+        }
+        else{
+            config = {
+                headers: {"user-key": "0bebf79759ac7e47316ab07b4578eb33"},
+            }
+        }
+        
+        axios.get( 'https://developers.zomato.com/api/v2.1/locations', config)
+        .then( response => {
+            console.log(response.data)
+            console.log(response.data.location_suggestions[0].entity_id)
+        } )
+        .catch(error => {
+            console.log(error);
+        });
+    }
+
+
+    getLocation = ()  => {
+        const locationCoords = this.displayLocationInfo
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(locationCoords);
+          }
+    }
+
+    displayLocationInfo = (position)  => {
+        this.setState({ latitude: position.coords.latitude, 
+            longitude: position.coords.longitude, 
+            currentLoc: true
+        })
+
+        console.log("Latitude: " + this.state.latitude + 
+        "Longitude: " + this.state.longitude)
+    }
+
  
 
     render() {
@@ -65,7 +132,7 @@ class Main extends Component{
         return(
             <>
             <div>
-                <NavBar/>
+                {/* <NavBar/> */}
                 <br></br>
             </div>
             <Container>
@@ -75,9 +142,16 @@ class Main extends Component{
                         {this.state.text}
                     </Col>
                     <Col md="4">
-                        <Input placeholder="search categories" onChange={this.handleChange}/>
-                         <Dropdown/>
-                        <Button color='primary' className='fourthButton'>Search</Button>
+                        <Input placeholder="search categories" onChange={this.searchCategories}/>
+                        <Input placehold='location' onChange={this.handleChange}/>
+                        <Button color='primary' onClick={this.callAxios}>Search Location</Button>
+                        <br></br>
+                        <br></br>
+
+                        <Button color='primary' onClick={this.getLocation}>Use Current Location</Button>
+                         {/* <Dropdown/>
+                        <Button color='primary' className='fourthButton'>Search</Button> */}
+
                     </Col>
                 </Row>
             </Container>
@@ -85,5 +159,14 @@ class Main extends Component{
         );
     };
 }
-export default Main;
+
+
+const mapStateToProps = state => {
+    return {
+        fullName: state.fullName
+    }
+};
+
+export default connect (mapStateToProps)(Main);
+
 
